@@ -44,7 +44,6 @@ class Scraper
   def parse_donors(doc)
     donors = doc.css('.views-table td').map { |e| e.text.strip.gsub(/\s*[\^\*]\s*/, '') }
     donors.each do |name|
-      p name
       ScraperWiki.save_sqlite([:name], {name: name, last_seen: Time.now})
     end
   end
