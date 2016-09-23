@@ -30,21 +30,25 @@ class Scraper
 
   def fetch_category(category)
     doc = fetch "https://www.clintonfoundation.org/contributors?category=#{CGI.escape category}"
-    parse_donors(doc)
+    save_donors(doc, category)
 
     next_link = doc.css('.pager-next a').first
 
     while next_link
       doc = fetch "https://www.clintonfoundation.org#{next_link.attr('href')}"
-      parse_donors(doc)
+      save_donors(doc, category)
       next_link = doc.css('.pager-next a').first
     end
   end
 
-  def parse_donors(doc)
+  def save_donors(doc, category)
     donors = doc.css('.views-table td').map { |e| e.text.strip.gsub(/\s*[\^\*]\s*/, '') }
     donors.each do |name|
-      ScraperWiki.save_sqlite([:name], {name: name, last_seen: Time.now})
+      ScraperWiki.save_sqlite([:name], 
+        name: name, 
+        last_seen: Time.now, 
+        category: category
+      )
     end
   end
 
